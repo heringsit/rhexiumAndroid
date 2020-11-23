@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "509526311001",
+    "firebase_url": "https://herings-b6668.firebaseio.com",
+    "project_id": "herings-b6668",
+    "storage_bucket": "herings-b6668.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509526311001:android:4759aca7b9128664fcf148",
+        "android_client_info": {
+          "package_name": "co.kr.inclass.herings"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "509526311001-1ij91mre6lgd1f1n4dvivcj43623hja8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.kr.inclass.herings",
+            "certificate_hash": "4af9198a11d2c2510313bd914f08b10afa8eb4e5"
+          }
+        },
+        {
+          "client_id": "509526311001-2ang1k70a5go28psufmp4ksmtphe4eu6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.kr.inclass.herings",
+            "certificate_hash": "f59b2a9c106c3f3630bd4a1b81bffa298f0b112e"
+          }
+        },
+        {
+          "client_id": "509526311001-qc116kaac4d53ruann7ll17q6fmjshjg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3T7SIto-por5i-LZgXvz8W2bDN7YpsYs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509526311001-qc116kaac4d53ruann7ll17q6fmjshjg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
