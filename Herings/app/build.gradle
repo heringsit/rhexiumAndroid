@@ -6,8 +6,8 @@ android {
         applicationId "co.kr.inclass.herings"
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 7
-        versionName "1.0.1"
+        versionCode 14
+        versionName "1.0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -40,6 +40,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.8.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

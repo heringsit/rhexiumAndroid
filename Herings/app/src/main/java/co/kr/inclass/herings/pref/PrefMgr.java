@@ -2,6 +2,7 @@ package co.kr.inclass.herings.pref;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -11,6 +12,7 @@ import co.kr.inclass.herings.model.UserInfo;
 public class PrefMgr {
     private static final String SP_LOGIN_INFO = "sp_login_info";
     private static final String SP_DEV_TOKEN = "sp_dev_token";
+    private static final String SP_INI_TIME = "sp_ini_time";
     private static final String SP_SPLASH_IDX = "sp_splash_idx";
 
     // 알람 정보
@@ -58,6 +60,7 @@ public class PrefMgr {
 
         strUser = new Gson().toJson(user, UserInfo.class);
         editor.putString(SP_LOGIN_INFO, strUser).apply();
+        Log.d(">>>>>", "strUser => "+ strUser);
     }
 
     public UserInfo getLoginUser() {
@@ -78,6 +81,14 @@ public class PrefMgr {
 
     public String getDevToken() {
         return sharedPreferences.getString(SP_DEV_TOKEN, "");
+    }
+
+    public void setInitialInstallTime(String iniTime) {
+        editor.putString(SP_INI_TIME, iniTime).apply();
+    }
+
+    public String setInitialInstallTime(){
+        return  sharedPreferences.getString(SP_INI_TIME, "");
     }
 
     public void setSpAlarmNoti(int value) {

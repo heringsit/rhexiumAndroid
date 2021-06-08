@@ -219,26 +219,26 @@ public class Util {
         }
     }
 
-    @SuppressLint("HardwareIds")
-    public static String getPhoneNumber(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            return "";
-        }
-        String phoneNumber = telephonyManager == null || TextUtils.isEmpty(telephonyManager.getLine1Number()) ?
-                "" :
-                telephonyManager.getLine1Number();
-        if (phoneNumber.startsWith("+82")) {
-            phoneNumber = "0" + phoneNumber.substring(3);
-        }
-
-        phoneNumber = phoneNumber.replace("-", "");
-        phoneNumber = phoneNumber.replace(" ", "");
-        // Test
-        //phoneNumber = "01028322917";
-        return phoneNumber;
-    }
+//    @SuppressLint("HardwareIds")
+//    public static String getPhoneNumber(Context context) {
+//        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//        if (ActivityCompat.checkSelfPermission(context,
+//                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//            return "";
+//        }
+//        String phoneNumber = telephonyManager == null || TextUtils.isEmpty(telephonyManager.getLine1Number()) ?
+//                "" :
+//                telephonyManager.getLine1Number();
+//        if (phoneNumber.startsWith("+82")) {
+//            phoneNumber = "0" + phoneNumber.substring(3);
+//        }
+//
+//        phoneNumber = phoneNumber.replace("-", "");
+//        phoneNumber = phoneNumber.replace(" ", "");
+//        // Test
+//        phoneNumber = "01000000000";
+//        return phoneNumber;
+//    }
 
     public static boolean hasUsim(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);

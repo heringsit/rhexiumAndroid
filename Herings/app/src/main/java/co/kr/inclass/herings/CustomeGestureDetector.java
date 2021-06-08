@@ -5,6 +5,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 class CustomeGestureDetector extends GestureDetector.SimpleOnGestureListener {
+    public String direction = "";
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if(e1 == null || e2 == null) return false;
@@ -14,11 +15,13 @@ class CustomeGestureDetector extends GestureDetector.SimpleOnGestureListener {
                 if(e1.getX() - e2.getX() > 100 && Math.abs(velocityX) > 800) {
                     //do your stuff
                     Log.d("swipe", " RightToLeft");
+                    direction = "left";
                     return true;
                 } //left to right swipe .. go to prev page
                 else if (e2.getX() - e1.getX() > 100 && Math.abs(velocityX) > 800) {
                     //do your stuff
                     Log.d("swipe", " LeftToRight");
+                    direction= "right";
                     return true;
                 } //bottom to top, go to next document
 //                else if(e1.getY() - e2.getY() > 100 && Math.abs(velocityY) > 800

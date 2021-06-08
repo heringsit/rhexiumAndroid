@@ -12,6 +12,9 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.Date;
+
+import co.kr.inclass.herings.model.UserInfo;
 import co.kr.inclass.herings.pref.PrefMgr;
 
 public class HeringsApplication extends Application {
@@ -23,6 +26,7 @@ public class HeringsApplication extends Application {
 
     // FCM 토큰값
     public String strFCMToken = "";
+    public String initialInstallTime ="";
 
     /**
      * singleton 애플리케이션 객체를 얻는다.
@@ -47,24 +51,26 @@ public class HeringsApplication extends Application {
         mPrefMgr = new PrefMgr();
 
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
                         if (!task.isSuccessful()) {
                             Log.w("Application", "getInstanceId failed", task.getException());
                             return;
                         }
-
                         // Get new Instance ID token
                         strFCMToken = task.getResult().getToken();
+                        initialInstallTime = new Date().getTime()+"";
+                        Log.w(" strFCMToken >>>>> ", strFCMToken  );
                         mPrefMgr.setDevToken(strFCMToken);
-
+                        mPrefMgr.setInitialInstallTime(initialInstallTime);
                     }
                 });
-        strFCMToken = FirebaseInstanceId.getInstance().getToken();
-        mPrefMgr.setDevToken(strFCMToken);
-//        strFCMToken = mPrefMgr.getDevToken();
+                if(mPrefMgr.getDevToken() == ""){
+                    strFCMToken = FirebaseInstanceId.getInstance().getToken();
+                    mPrefMgr.setDevToken(strFCMToken);
+                }
+                strFCMToken = mPrefMgr.getDevToken();
     }
 
     /**

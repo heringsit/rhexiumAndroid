@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -36,7 +37,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import co.kr.inclass.herings.util.MediaManager;
 import co.kr.inclass.herings.util.Util;
@@ -47,8 +52,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE = 0x11;
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_REQUEST = 2;
-
-
     private static final int MSG_ANI_STEP1 = 100;
     private static final int MSG_ANI_STEP2 = 200;
     private static final int MSG_ANI_STEP3 = 300;
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView mSplashMark;
     private ImageView mSplashDes;
 
-    private GestureDetector gestureDetector;
+    //    private GestureDetector gestureDetector;
     // 사진선택팝업
     RelativeLayout mRlSelectPhoto;
 
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    private final static int FILECHOOSER_RESULTCODE = 1;
 
     private String pushLink = "";
+    private SharedPreferences prefs;
 
     String[] permissions = {
             "android.permission.WRITE_EXTERNAL_STORAGE",
@@ -105,6 +109,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     long backPressedTime = 0;
+
+    private String getFirstScreen() throws ParseException {
+        String firstScreen = "main";
+
+        prefs = getSharedPreferences("shared", MODE_PRIVATE);
+        String savedEndDay = prefs.getString("savedEndDay", "");
+        Calendar today = Calendar.getInstance();
+        Log.d("kkk", "savedEndDay => " + savedEndDay);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if (savedEndDay == "") {       // savedEndDay가 설정이 안되었다면 -> 지금 최초 인스톨 이면,
+            SharedPreferences.Editor editor = prefs.edit();
+            today.add(Calendar.DATE, 7);
+            editor.putString("savedEndDay", sdf.format(today.getTime()));  // 오늘 + 7일을 저장
+            editor.commit();
+            firstScreen = "tutorial";  // 가야할 화면은 tutorial
+        } else {                 // 최초 인스톨이 아니면,
+            String notToday = prefs.getString("notToday", "");
+            if (notToday.equals(sdf.format(today.getTime()))) {
+                firstScreen = "main";
+            } else {
+                Calendar endDay = Calendar.getInstance();  // 종료일 설정
+                if (savedEndDay.length() > 0) {
+                    endDay.setTime(sdf.parse(savedEndDay));
+                }
+                Log.d("kkk", "endDay => " + endDay);
+                if (today.after(endDay)) {
+                    firstScreen = "main";
+                } else {
+                    firstScreen = "tutorial";
+                }
+            }
+
+        }
+
+        return firstScreen;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,11 +208,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestPermission(this, permissions, REQUEST_CODE);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        Log.d("onTouchEvent", ">>>>>>> "+ev);
-        return gestureDetector.onTouchEvent(ev) || super.onTouchEvent(ev);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent ev) {
+//        Log.d("onTouchEvent", ">>>>>>> "+ev);
+//        Log.d("ddd", ">>>>>>> "+ev);
+//        return this.gestureDetector.onTouchEvent(ev) || super.onTouchEvent(ev);
+//    }
 
     private void initWebView() {
         mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
@@ -183,8 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mWebView.getSettings().setSavePassword(false);
         mWebView.getSettings().setAppCacheEnabled(true);
 
-        gestureDetector = new GestureDetector(new CustomeGestureDetector());
-
+//        this.gestureDetector = new GestureDetector(new CustomeGestureDetector());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -325,24 +365,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-
     private void onNext() {
         initWebView();
         //mWebView.addJavascriptInterface(new ContentManager(getApplicationContext()), "jobfriendapp");
         HeringsApplication application = (HeringsApplication) getApplicationContext();
-        String url = Constants.WEB_URL + "?m_token=" + application.strFCMToken + "&m_no=";
+        String url = Constants.WEB_URL + "?m_token=" + application.strFCMToken + "&m_no=" + application.initialInstallTime;
+        Log.d("kkk", "pushLink >> " + pushLink);
+
         if (!pushLink.isEmpty()) {
             if (pushLink.contains("?")) {
-                url = Constants.WEB_URL + pushLink + "&m_token=" + application.strFCMToken + "&m_no=";
+                url = Constants.WEB_URL + pushLink + "&m_token=" + application.strFCMToken + "&m_no=" + application.initialInstallTime;
             } else {
-                url = Constants.WEB_URL + pushLink + "?m_token=" + application.strFCMToken + "&m_no=";
+                url = Constants.WEB_URL + pushLink + "?m_token=" + application.strFCMToken + "&m_no=" + application.initialInstallTime;
             }
         }
-        if (!Util.hasUsim(application)) {
-            mWebView.loadUrl(url);
-        } else {
-            mWebView.loadUrl(url + Util.getPhoneNumber(application));
-        }
+        Log.d("kkk", "url >> " + url);
+
+        // 유심 있던 없던 그냥 url (폰넘버 X)
+        mWebView.loadUrl(url);
+
+//        if (!Util.hasUsim(application)) {
+//            mWebView.loadUrl(url);
+//        } else {
+////            mWebView.loadUrl(url + Util.getPhoneNumber(application));
+//            mWebView.loadUrl(url + "12345678");
+//        }
 
         if (!pushLink.isEmpty()) {
             mSplash.setVisibility(View.GONE);
@@ -580,6 +627,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSplashAniStep10() {
+        Log.d("kkk", " Animation 10");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -589,6 +637,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSplashAniStep11() {
+        Log.d("kkk", " Animation 11");
+
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_anim);
         animation.setDuration(2000);
         mSplashBlack.startAnimation(animation);
@@ -615,6 +665,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSplashAniStep12() {
+        Log.d("kkk", " Animation 12");
+
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fadeout_anim);
         animation.setDuration(1500);
         mSplashWhite.startAnimation(animation);
@@ -700,6 +752,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startSplashAniStep15() {
+        Log.d("kkk", " Animation 15");
+
         mSplash.setVisibility(View.GONE);
         Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_anim);
         animation1.setDuration(1000);
@@ -707,9 +761,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Animation animation2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fadeout_anim);
         animation2.setDuration(2000);
-        mWebView.startAnimation(animation2);
-    }
 
+        String firstScreen = "";
+
+        try {
+            firstScreen = getFirstScreen();
+            Log.d("kkk", "firstScreen => " + firstScreen);
+            mWebView.startAnimation(animation2);
+
+            if (firstScreen == "tutorial") {
+                Intent goTutorial = new Intent(getApplicationContext(), TutorialActivity.class);
+                startActivity(goTutorial);
+
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d("kkk", " e ==> " + e.toString());
+        }
+
+
+    }
 
 
     public void addImage() {
@@ -828,13 +900,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == REQUEST_CODE) {
             if (getPermissionCheckAllStatus(grantResults)) {
                 onNext();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("권한 요청 확인").setMessage("본 서비스를 이용하시려면 권한 요청에 동의를 하셔야 합니다.");
+                builder.setPositiveButton("앱 종료", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        Toast.makeText(getApplicationContext(), "재 실행 후 권한 요청에 동의를 해주시기 바랍니다.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GALLERY_REQUEST || requestCode == CAMERA_REQUEST) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (uploadMessage == null) return;
                 uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
                 uploadMessage = null;
